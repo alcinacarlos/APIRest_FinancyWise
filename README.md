@@ -1,4 +1,5 @@
 # SplitEasy API
+
 ![Logo](images/logo.png)
 ## Idea
 SplitEasy es una aplicación para gestionar gastos compartidos entre grupos de personas. Permite a los usuarios registrar gastos, calcular balances, y simplificar el proceso de liquidación.
@@ -49,7 +50,9 @@ SplitEasy es una aplicación para gestionar gastos compartidos entre grupos de p
 | `amount`      | Decimal            | Monto del pago.                        |
 | `date`        | Timestamp          | Fecha del pago.                        |
 
+# Modelo Entidad - Relación
 
+![ER](./images/ER.png)
 
 ## Objetivo principal
 Crear una base de datos que permita:
