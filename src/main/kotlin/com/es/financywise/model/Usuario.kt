@@ -24,6 +24,8 @@ data class Usuario(
     var password: String? = null,
 
     @Column(nullable = false)
-    var fechaCreacion: LocalDateTime? = LocalDateTime.now()
+    var fechaCreacion: LocalDateTime? = LocalDateTime.now(),
+
+    var roles: String? = null // e.g., "ROLE_USER,ROLE_ADMIN
 )
 

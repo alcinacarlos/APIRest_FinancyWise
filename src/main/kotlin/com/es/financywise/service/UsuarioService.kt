@@ -1,11 +1,12 @@
 package com.es.financywise.service
 
+import com.es.financywise.error.exception.*
 import com.es.financywise.model.Usuario
 import com.es.financywise.repository.UsuarioRepository
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,49 +15,82 @@ class UsuarioService : UserDetailsService {
     @Autowired
     private lateinit var usuarioRepository: UsuarioRepository
 
+    @Autowired
+    private lateinit var passwordEncoder: PasswordEncoder
 
-    /*
-    TODO
+
+    /**
+     * Implementación de UserDetailsService para Spring Security
      */
     override fun loadUserByUsername(username: String?): UserDetails {
         val usuario: Usuario = usuarioRepository
             .findByUsername(username!!)
-            .orElseThrow()
+            .orElseThrow { NotFoundException("Usuario con username $username no encontrado") }
 
-
-        return User.builder()
+        return org.springframework.security.core.userdetails.User.builder()
             .username(usuario.username)
             .password(usuario.password)
             .roles(usuario.roles)
-            .build( )
+            .build()
     }
 
-
-    /*
-    MÉTODO PARA INSERTAR UN USUARIO
+    /**
+     * Método para registrar un nuevo usuario
      */
-    fun registerUsuario(usuario: Usuario) : Usuario? {
+    fun registerUsuario(usuario: Usuario): Usuario {
+        if (usuarioRepository.findByUsername(usuario.username!!).isPresent) {
+            throw BadRequestException("El username ${usuario.username} ya está en uso")
+        }
+        if (usuarioRepository.findByEmail(usuario.email!!).isPresent) {
+            throw BadRequestException("El email ${usuario.email} ya está en uso")
+        }
 
-        // Comprobamos que el usuario no existe en la base de datos
+        // Hashear la contraseña
+        usuario.password = passwordEncoder.encode(usuario.password)
 
+        return usuarioRepository.save(usuario)
+    }
 
-        // Creamos la instancia de Usuario
+    /**
+     * Método para obtener todos los usuarios
+     */
+    fun getAllUsuarios(): List<Usuario> {
+        return usuarioRepository.findAll()
+    }
 
+    /**
+     * Método para obtener un usuario por su ID
+     */
+    fun getUsuarioById(idUsuario: Long): Usuario {
+        return usuarioRepository.findById(idUsuario)
+            .orElseThrow { NotFoundException("Usuario con ID $idUsuario no encontrado") }
+    }
 
-        /*
-         La password del newUsuario debe estar hasheada, así que usamos el passwordEncoder que tenemos definido.
-         ¿De dónde viene ese passwordEncoder?
-         El objeto passwordEncoder lo tenemos que inyectar, y viene desde la clase SecurityConfig
-         */
+    /**
+     * Método para actualizar un usuario existente
+     */
+    fun updateUsuario(idUsuario: Long, usuario: Usuario): Usuario {
+        val usuarioExistente = usuarioRepository.findById(idUsuario)
+            .orElseThrow { NotFoundException("Usuario con ID $idUsuario no encontrado") }
 
+        usuarioExistente.username = usuario.username ?: usuarioExistente.username
+        usuarioExistente.email = usuario.email ?: usuarioExistente.email
+        if (!usuario.password.isNullOrBlank()) {
+            usuarioExistente.password = passwordEncoder.encode(usuario.password)
+        }
+        usuarioExistente.roles = usuario.roles ?: usuarioExistente.roles
 
-        // Guardamos el newUsuario en la base de datos... igual que siempre
+        return usuarioRepository.save(usuarioExistente)
+    }
 
+    /**
+     * Método para eliminar un usuario por su ID
+     */
+    fun deleteUsuario(idUsuario: Long) {
+        val usuario = usuarioRepository.findById(idUsuario)
+            .orElseThrow { NotFoundException("Usuario con ID $idUsuario no encontrado") }
 
-
-        // Devolvemos el Usuario insertado en la BDD
-        return null // Cambiar null por el usuario
-
+        usuarioRepository.delete(usuario)
     }
 
 
