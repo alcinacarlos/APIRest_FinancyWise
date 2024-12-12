@@ -11,10 +11,6 @@ import java.time.LocalDateTime
 @Table(name = "usuarios")
 data class Usuario(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var idUsuario: Long? = null,
-
-    @Column(nullable = false)
     var username: String? = null,
 
     @Column(unique = true, nullable = false)

@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.security.core.userdetails.User
 
 @Service
 class UsuarioService : UserDetailsService {
@@ -22,12 +23,12 @@ class UsuarioService : UserDetailsService {
     /**
      * Implementación de UserDetailsService para Spring Security
      */
-    override fun loadUserByUsername(username: String?): UserDetails {
+    override fun loadUserByUsername(username: String): UserDetails {
         val usuario: Usuario = usuarioRepository
-            .findByUsername(username!!)
+            .findByUsername(username)
             .orElseThrow { NotFoundException("Usuario con username $username no encontrado") }
 
-        return org.springframework.security.core.userdetails.User.builder()
+        return User.builder()
             .username(usuario.username)
             .password(usuario.password)
             .roles(usuario.roles)
@@ -45,7 +46,7 @@ class UsuarioService : UserDetailsService {
             throw BadRequestException("El email ${usuario.email} ya está en uso")
         }
 
-        // Hashear la contraseña
+
         usuario.password = passwordEncoder.encode(usuario.password)
 
         return usuarioRepository.save(usuario)
@@ -93,6 +94,13 @@ class UsuarioService : UserDetailsService {
         usuarioRepository.delete(usuario)
     }
 
+    /**
+     * Método para buscar un usuario por su username
+     */
+
+    fun findByUsername(username: String): Usuario{
+       return usuarioRepository.findByUsername(username).orElseThrow { NotFoundException("Usuario con username $username no encontrado") }
+    }
 
 
 }

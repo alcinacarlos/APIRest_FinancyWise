@@ -10,10 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.AuthenticationException
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/usuarios")
@@ -32,19 +29,9 @@ class UsuarioController {
     MÉTODO PARA INSERTAR UN USUARIO
      */
     @PostMapping("/register")
-    fun register(
-        @RequestBody newUsuario: Usuario
-    ) : ResponseEntity<Usuario?>? {
-
-        // Comprobación mínima
-        // -> La obviamos por ahora
-
-        // Llamar al UsuarioService para insertar un usuario
-
-
-        // Devolver el usuario insertado
-        return ResponseEntity(null, HttpStatus.CREATED) // Cambiar null por el usuario insertado
-
+    fun register(@RequestBody newUsuario: Usuario): ResponseEntity<Usuario> {
+        val usuarioRegistrado = usuarioService.registerUsuario(newUsuario)
+        return ResponseEntity(usuarioRegistrado, HttpStatus.CREATED)
     }
 
 
@@ -52,21 +39,90 @@ class UsuarioController {
     MÉTODO (ENDPOINT) PARA HACER UN LOGIN
      */
     @PostMapping("/login")
-    fun login(@RequestBody usuario: Usuario) : ResponseEntity<Any>? {
+    fun login(@RequestBody usuario: Usuario): ResponseEntity<Any> {
 
         val authentication: Authentication
         try {
-            authentication = authenticationManager.authenticate(UsernamePasswordAuthenticationToken(usuario.username, usuario.password))
+            authentication = authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken(
+                    usuario.username,
+                    usuario.password
+                )
+            )
         } catch (e: AuthenticationException) {
-            return ResponseEntity(mapOf("mensaje" to "Credenciales incorrectas dude"), HttpStatus.UNAUTHORIZED)
+            return ResponseEntity(mapOf("mensaje" to "Credenciales incorrectas"), HttpStatus.UNAUTHORIZED)
         }
 
 
         //si pasamos la autenticacion, sigifica que estamos bien autenticados
-        //ppasamos a generar token
+        //pasamos a generar token
         val token = tokenService.generarToken(authentication)
         return ResponseEntity(mapOf("token" to token), HttpStatus.CREATED)
-
     }
+    /**
+     * Obtener la información de un usuario por su username (Solo el dueño o un administrador pueden acceder).
+     */
+    @GetMapping("/{username}")
+    fun getUsuarioByUsername(
+        authentication: Authentication,
+        @PathVariable username: String
+    ): ResponseEntity<Any> {
+        val usuario = usuarioService.findByUsername(username)
+
+        return if (authentication.name == usuario.username || authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
+            ResponseEntity(usuario, HttpStatus.OK)
+        } else {
+            ResponseEntity(mapOf("message" to "Acceso denegado"), HttpStatus.FORBIDDEN)
+        }
+    }
+
+    /**
+     * Obtener todos los usuarios (Solo accesible por administradores).
+     */
+    @GetMapping
+    fun getAllUsuarios(authentication: Authentication): ResponseEntity<Any> {
+        return if (authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
+            val usuarios = usuarioService.getAllUsuarios()
+            ResponseEntity(usuarios, HttpStatus.OK)
+        } else {
+            ResponseEntity(mapOf("message" to "Acceso denegado"), HttpStatus.FORBIDDEN)
+        }
+    }
+
+    /**
+     * Actualizar la información de un usuario (Se requiere que sea el usuario autenticado o un administrador).
+     */
+    @PutMapping("/{id}")
+    fun updateUsuario(
+        authentication: Authentication,
+        @PathVariable id: Long,
+        @RequestBody updatedUsuario: Usuario
+    ): ResponseEntity<Any> {
+        val usuario = usuarioService.getUsuarioById(id)
+
+        return if (authentication.name == usuario.username || authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
+            val usuarioActualizado = usuarioService.updateUsuario(id, updatedUsuario)
+            ResponseEntity(usuarioActualizado, HttpStatus.OK)
+        } else {
+            ResponseEntity(mapOf("message" to "Acceso denegado"), HttpStatus.FORBIDDEN)
+        }
+    }
+
+    /**
+     * Eliminar un usuario por su username (Solo el admin puede eliminar usuarios).
+     */
+    @DeleteMapping("/{id}")
+    fun deleteUsuario(
+        authentication: Authentication,
+        @PathVariable id: Long
+    ): ResponseEntity<Any> {
+        if (authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
+            usuarioService.deleteUsuario(id)
+            return ResponseEntity(mapOf("message" to "Usuario eliminado exitosamente"), HttpStatus.OK)
+        }
+        return ResponseEntity(mapOf("message" to "Acceso denegado"), HttpStatus.FORBIDDEN)
+    }
+
+
 
 }
