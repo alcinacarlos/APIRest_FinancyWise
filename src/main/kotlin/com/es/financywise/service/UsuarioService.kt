@@ -1,7 +1,7 @@
-package com.es.spliteasy.service
+package com.es.financywise.service
 
-import com.es.spliteasy.model.Usuario
-import com.es.spliteasy.repository.UsuarioRepository
+import com.es.financywise.model.Usuario
+import com.es.financywise.repository.UsuarioRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails

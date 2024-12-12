@@ -1,4 +1,4 @@
-package com.es.spliteasy
+package com.es.financywise
 
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
@@ -6,7 +6,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 class ServletInitializer : SpringBootServletInitializer() {
 
 	override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder {
-		return application.sources(SplitEasyApplication::class.java)
+		return application.sources(FinancyWiseApplication::class.java)
 	}
 
 }

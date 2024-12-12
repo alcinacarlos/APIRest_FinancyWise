@@ -1,1 +1,1 @@
-rootProject.name = "SplitEasy"
+rootProject.name = "FinancyWise"

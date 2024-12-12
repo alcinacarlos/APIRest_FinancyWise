@@ -1,4 +1,4 @@
-package com.es.spliteasy.controller
+package com.es.financywise.controller
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

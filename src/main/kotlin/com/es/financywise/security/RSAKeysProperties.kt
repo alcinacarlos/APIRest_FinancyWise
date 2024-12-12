@@ -1,4 +1,4 @@
-package com.es.spliteasy.security
+package com.es.financywise.security
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import java.security.interfaces.RSAPrivateKey

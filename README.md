@@ -1,61 +1,64 @@
-# SplitEasy API
+# FinancyWise API
 
-![Logo](images/logo.png)
+![Logo](./images/logo.png)
+
 ## Idea
-SplitEasy es una aplicación para gestionar gastos compartidos entre grupos de personas. Permite a los usuarios registrar gastos, calcular balances, y simplificar el proceso de liquidación.
+FinancyWise es una aplicación para gestionar finanzas personales. Su propósito es ayudar a los usuarios a rastrear ingresos y gastos, analizar su comportamiento financiero y tomar decisiones más informadas para mejorar su bienestar económico.
 
+## Justificación de la Idea
+
+### 1. **Problema Detectado**
+La falta de control sobre los ingresos y gastos dificulta la planificación financiera, llevando a decisiones económicas poco efectivas. Muchas personas no cuentan con herramientas claras para visualizar sus hábitos de consumo.
+
+### 2. **Solución Propuesta**
+FinancyWise ofrece:
+- Una plataforma intuitiva para registrar y organizar transacciones.
+- Visualizaciones detalladas de los patrones de gasto e ingreso.
+- Insights personalizados que fomenten el ahorro y mejoren el uso de los recursos.
 ## Tablas
 
-## Usuarios (`users`)
-| Campo         | Tipo de dato       | Descripción                            |
-|---------------|--------------------|----------------------------------------|
-| `id`          | PK, entero         | Clave primaria del usuario.            |
-| `name`        | Texto              | Nombre del usuario.                    |
-| `email`       | Texto, único       | Correo electrónico del usuario.        |
-| `created_at`  | Timestamp          | Fecha de creación del usuario.         |
+### 1. Tabla `usuarios`
+Contiene la información de los usuarios.
 
-## Grupos (`groups`)
-| Campo         | Tipo de dato       | Descripción                            |
-|---------------|--------------------|----------------------------------------|
-| `id`          | PK, entero         | Clave primaria del grupo.              |
-| `name`        | Texto              | Nombre del grupo.                      |
-| `description` | Texto, opcional    | Breve descripción del grupo.           |
-| `created_at`  | Timestamp          | Fecha de creación del grupo.           |
+| Campo            | Tipo            | Detalles                      |
+|------------------|-----------------|-------------------------------|
+| `id_usuario`     | BIGINT          | PK, autoincremental           |
+| `username`       | VARCHAR(100)    | No nulo                       |
+| `email`          | VARCHAR(150)    | No nulo, único                |
+| `password`       | VARCHAR(255)    | No nulo (almacenada de forma segura) |
+| `fecha_creacion` | TIMESTAMP     | No nulo, valor por defecto ahora() |
 
-## Miembros (`members`)
-| Campo         | Tipo de dato       | Descripción                            |
-|---------------|--------------------|----------------------------------------|
-| `id`          | PK, entero         | Clave primaria del miembro.            |
-| `group_id`    | FK, entero         | Grupo al que pertenece.                |
-| `user_id`     | FK, entero         | Usuario que es miembro.                |
-| `joined_at`   | Timestamp          | Fecha en la que el usuario se unió.    |
+---
 
-## Gastos (`expenses`)
-| Campo         | Tipo de dato       | Descripción                            |
-|---------------|--------------------|----------------------------------------|
-| `id`          | PK, entero         | Clave primaria del gasto.              |
-| `group_id`    | FK, entero         | Grupo al que pertenece el gasto.       |
-| `user_id`     | FK, entero         | Usuario que realizó el gasto.          |
-| `description` | Texto              | Descripción breve del gasto.           |
-| `amount`      | Decimal            | Monto del gasto.                       |
-| `date`        | Timestamp          | Fecha del gasto.                       |
+### 2. Tabla `gastos`
+Contiene los gastos realizados por los usuarios.
 
-## Pagos (`payments`)
-| Campo         | Tipo de dato       | Descripción                            |
-|---------------|--------------------|----------------------------------------|
-| `id`          | PK, entero         | Clave primaria del pago.               |
-| `group_id`    | FK, entero         | Grupo al que pertenece el pago.        |
-| `debtor_id`   | FK, entero         | Usuario que debe pagar.                |
-| `creditor_id` | FK, entero         | Usuario que recibe el pago.            |
-| `amount`      | Decimal            | Monto del pago.                        |
-| `date`        | Timestamp          | Fecha del pago.                        |
+| Campo          | Tipo         | Detalles                      |
+|----------------|--------------|-------------------------------|
+| `id_gasto`     | BIGINT       | PK, autoincremental           |
+| `id_usuario`   | BIGINT       | FK, referencia a `usuarios.id_usuario` |
+| `categoria`    | VARCHAR(50)  | No nulo (ej.: comida, transporte) |
+| `descripcion`  | VARCHAR(255) | Opcional                      |
+| `monto`        | DECIMAL(10,2)| No nulo                       |
+| `fecha`        | DATE         | No nulo                       |
+
+---
+
+### 3. Tabla `ingresos`
+Contiene los ingresos registrados por los usuarios.
+
+| Campo          | Tipo         | Detalles                      |
+|----------------|--------------|-------------------------------|
+| `id_ingreso`   | BIGINT       | PK, autoincremental           |
+| `id_usuario`   | BIGINT       | FK, referencia a `usuarios.id_usuario` |
+| `categoria`    | VARCHAR(50)  | No nulo (ej.: sueldo, inversión) |
+| `descripcion`  | VARCHAR(255) | Opcional                      |
+| `monto`        | DECIMAL(10,2)| No nulo                       |
+| `fecha`        | DATE         | No nulo                       |
+
+---
 
 # Modelo Entidad - Relación
 
 ![ER](./images/ER.png)
 
-## Objetivo principal
-Crear una base de datos que permita:
-1. Registrar usuarios y sus interacciones dentro de grupos.
-2. Organizar gastos compartidos entre miembros de un grupo.
-3. Facilitar el cálculo y registro de pagos necesarios para saldar las deudas entre amigos.

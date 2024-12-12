@@ -1,10 +1,10 @@
-package com.es.spliteasy
+package com.es.financywise
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class SplitEasyApplicationTests {
+class FinancyWiseApplicationTests {
 
 	@Test
 	fun contextLoads() {

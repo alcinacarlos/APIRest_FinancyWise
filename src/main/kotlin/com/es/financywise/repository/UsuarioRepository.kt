@@ -1,6 +1,6 @@
-package com.es.spliteasy.repository
+package com.es.financywise.repository
 
-import com.es.spliteasy.model.Usuario
+import com.es.financywise.model.Usuario
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.Optional

@@ -1,8 +1,8 @@
-package com.es.spliteasy.controller
+package com.es.financywise.controller
 
-import com.es.spliteasy.model.Usuario
-import com.es.spliteasy.service.TokenService
-import com.es.spliteasy.service.UsuarioService
+import com.es.financywise.model.Usuario
+import com.es.financywise.service.TokenService
+import com.es.financywise.service.UsuarioService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

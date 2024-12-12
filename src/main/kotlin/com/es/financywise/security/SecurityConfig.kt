@@ -1,4 +1,4 @@
-package com.es.spliteasy.security
+package com.es.financywise.security
 
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.JWKSet
