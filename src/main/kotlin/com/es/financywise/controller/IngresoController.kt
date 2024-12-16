@@ -22,16 +22,16 @@ class IngresoController {
     /**
      * Registrar un nuevo ingreso asociado a un usuario
      */
-    @PostMapping("/{idUsuario}")
+    @PostMapping("/{username}")
     fun createIngreso(
         authentication: Authentication,
-        @PathVariable idUsuario: Long,
+        @PathVariable username: String,
         @RequestBody nuevoIngreso: Ingreso
     ): ResponseEntity<Any> {
-        val usuario = usuarioService.getUsuarioById(idUsuario)
+        val usuario = usuarioService.findByUsername(username)
 
         if (authentication.name == usuario.username || authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
-            val ingresoRegistrado = ingresoService.registerIngreso(idUsuario, nuevoIngreso)
+            val ingresoRegistrado = ingresoService.registerIngreso(username, nuevoIngreso)
             return ResponseEntity(ingresoRegistrado, HttpStatus.CREATED)
         } else {
             return ResponseEntity(mapOf("message" to "Acceso denegado"), HttpStatus.FORBIDDEN)
@@ -43,7 +43,9 @@ class IngresoController {
      * Solo accesible por admin
      */
     @GetMapping
-    fun getAllIngresos(authentication: Authentication): ResponseEntity<Any> {
+    fun getAllIngresos(
+        authentication: Authentication
+    ): ResponseEntity<Any> {
         if (authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
             val ingresos = ingresoService.getAllIngresos()
             return if (ingresos.isNotEmpty()) {
@@ -59,15 +61,15 @@ class IngresoController {
     /**
      * Obtener los ingresos de un usuario específico
      */
-    @GetMapping("/usuario/{idUsuario}")
+    @GetMapping("/usuario/{username}")
     fun getIngresosByUsuario(
         authentication: Authentication,
-        @PathVariable idUsuario: Long
+        @PathVariable username: String
     ): ResponseEntity<Any> {
-        val usuario = usuarioService.getUsuarioById(idUsuario)
+        val usuario = usuarioService.findByUsername(username)
 
         if (authentication.name == usuario.username || authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
-            val ingresos = ingresoService.getIngresosByUsuario(idUsuario)
+            val ingresos = ingresoService.getIngresosByUsuario(username)
             return if (ingresos.isNotEmpty()) {
                 ResponseEntity(ingresos, HttpStatus.OK)
             } else {

@@ -3,6 +3,7 @@ package com.es.financywise.controller
 import com.es.financywise.model.Gasto
 import com.es.financywise.service.GastoService
 import com.es.financywise.service.UsuarioService
+import org.hibernate.Hibernate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -22,16 +23,16 @@ class GastoController {
     /**
      * Registrar un nuevo gasto asociado a un usuario
      */
-    @PostMapping("/{idUsuario}")
+    @PostMapping("/{username}")
     fun createGasto(
         authentication: Authentication,
-        @PathVariable idUsuario: Long,
+        @PathVariable username: String,
         @RequestBody nuevoGasto: Gasto
     ): ResponseEntity<Any> {
-        val usuario = usuarioService.getUsuarioById(idUsuario)
+        val usuario = usuarioService.findByUsername(username)
 
         if (authentication.name == usuario.username || authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
-            val gastoRegistrado = gastoService.registerGasto(idUsuario, nuevoGasto)
+            val gastoRegistrado = gastoService.registerGasto(username, nuevoGasto)
             return ResponseEntity(gastoRegistrado, HttpStatus.CREATED)
         } else {
             return ResponseEntity(mapOf("message" to "Acceso denegado"), HttpStatus.FORBIDDEN)
@@ -59,15 +60,15 @@ class GastoController {
     /**
      * Obtener los gastos de un usuario específico
      */
-    @GetMapping("/usuario/{idUsuario}")
+    @GetMapping("/usuario/{username}")
     fun getGastosByUsuario(
         authentication: Authentication,
-        @PathVariable idUsuario: Long
+        @PathVariable username: String
     ): ResponseEntity<Any> {
-        val usuario = usuarioService.getUsuarioById(idUsuario)
+        val usuario = usuarioService.findByUsername(username)
 
         if (authentication.name == usuario.username || authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
-            val gastos = gastoService.getGastosByUsuario(idUsuario)
+            val gastos = gastoService.getGastosByUsuario(username)
             return if (gastos.isNotEmpty()) {
                 ResponseEntity(gastos, HttpStatus.OK)
             } else {

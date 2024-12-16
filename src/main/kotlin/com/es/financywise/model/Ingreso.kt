@@ -10,7 +10,7 @@ data class Ingreso(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var idIngreso: Long? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "id_usuario", nullable = false)
     var usuario: Usuario? = null,
 

@@ -10,7 +10,7 @@ data class Gasto(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var idGasto: Long? = null,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     @JoinColumn(name = "id_usuario", nullable = false)
     var usuario: Usuario? = null,
 

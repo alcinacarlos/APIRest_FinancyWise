@@ -19,9 +19,9 @@ class IngresoService() {
     /**
      * Método para registrar un nuevo ingreso asociado a un usuario
      */
-    fun registerIngreso(idUsuario: Long, ingreso: Ingreso): Ingreso {
-        val usuario: Usuario = usuarioRepository.findById(idUsuario)
-            .orElseThrow { NotFoundException("Usuario con ID $idUsuario no encontrado") }
+    fun registerIngreso(username: String, ingreso: Ingreso): Ingreso {
+        val usuario: Usuario = usuarioRepository.findByUsername(username)
+            .orElseThrow { NotFoundException("Usuario con ID $username no encontrado") }
 
         ingreso.usuario = usuario
 
@@ -38,9 +38,9 @@ class IngresoService() {
     /**
      * Método para obtener los ingresos de un usuario específico
      */
-    fun getIngresosByUsuario(idUsuario: Long): List<Ingreso> {
-        val usuario: Usuario = usuarioRepository.findById(idUsuario)
-            .orElseThrow { NotFoundException("Usuario con ID $idUsuario no encontrado") }
+    fun getIngresosByUsuario(username: String): List<Ingreso> {
+        val usuario: Usuario = usuarioRepository.findByUsername(username)
+            .orElseThrow { NotFoundException("Usuario con ID $username no encontrado") }
 
         return ingresoRepository.findByUsuario(usuario)
     }

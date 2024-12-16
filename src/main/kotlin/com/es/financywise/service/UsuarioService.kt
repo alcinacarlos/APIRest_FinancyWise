@@ -39,6 +39,8 @@ class UsuarioService : UserDetailsService {
      * Método para registrar un nuevo usuario
      */
     fun registerUsuario(usuario: Usuario): Usuario {
+        if (!isValidEmail(usuario.email!!)) throw BadRequestException("El email ${usuario.email} no es valido")
+
         if (usuarioRepository.findByUsername(usuario.username!!).isPresent) {
             throw BadRequestException("El username ${usuario.username} ya está en uso")
         }
@@ -48,9 +50,15 @@ class UsuarioService : UserDetailsService {
 
 
         usuario.password = passwordEncoder.encode(usuario.password)
+        usuario.roles = "USER"
 
         return usuarioRepository.save(usuario)
     }
+    private fun isValidEmail(email: String): Boolean {
+        val emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
+        return email.matches(emailRegex.toRegex())
+    }
+
 
     /**
      * Método para obtener todos los usuarios
@@ -70,16 +78,16 @@ class UsuarioService : UserDetailsService {
     /**
      * Método para actualizar un usuario existente
      */
-    fun updateUsuario(idUsuario: Long, usuario: Usuario): Usuario {
-        val usuarioExistente = usuarioRepository.findById(idUsuario)
-            .orElseThrow { NotFoundException("Usuario con ID $idUsuario no encontrado") }
+    fun updateUsuario(usuario: Usuario): Usuario {
+        val usuarioExistente = usuarioRepository.findByUsername(usuario.username!!)
+            .orElseThrow { NotFoundException("Usuario con ID ${usuario.username} no encontrado") }
 
-        usuarioExistente.username = usuario.username ?: usuarioExistente.username
-        usuarioExistente.email = usuario.email ?: usuarioExistente.email
-        if (!usuario.password.isNullOrBlank()) {
+        usuarioExistente.username = usuario.username
+        usuarioExistente.email = usuario.email
+
+        if (usuario.password.isNullOrBlank()) {
             usuarioExistente.password = passwordEncoder.encode(usuario.password)
         }
-        usuarioExistente.roles = usuario.roles ?: usuarioExistente.roles
 
         return usuarioRepository.save(usuarioExistente)
     }
@@ -87,9 +95,9 @@ class UsuarioService : UserDetailsService {
     /**
      * Método para eliminar un usuario por su ID
      */
-    fun deleteUsuario(idUsuario: Long) {
-        val usuario = usuarioRepository.findById(idUsuario)
-            .orElseThrow { NotFoundException("Usuario con ID $idUsuario no encontrado") }
+    fun deleteUsuario(username: String) {
+        val usuario = usuarioRepository.findByUsername(username)
+            .orElseThrow { NotFoundException("Usuario con ID $username no encontrado") }
 
         usuarioRepository.delete(usuario)
     }

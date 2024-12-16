@@ -92,16 +92,15 @@ class UsuarioController {
     /**
      * Actualizar la información de un usuario (Se requiere que sea el usuario autenticado o un administrador).
      */
-    @PutMapping("/{id}")
+    @PutMapping("/{username}")
     fun updateUsuario(
         authentication: Authentication,
-        @PathVariable id: Long,
+        @PathVariable username: String,
         @RequestBody updatedUsuario: Usuario
     ): ResponseEntity<Any> {
-        val usuario = usuarioService.getUsuarioById(id)
 
-        return if (authentication.name == usuario.username || authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
-            val usuarioActualizado = usuarioService.updateUsuario(id, updatedUsuario)
+        return if (authentication.name == updatedUsuario.username || authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
+            val usuarioActualizado = usuarioService.updateUsuario(updatedUsuario)
             ResponseEntity(usuarioActualizado, HttpStatus.OK)
         } else {
             ResponseEntity(mapOf("message" to "Acceso denegado"), HttpStatus.FORBIDDEN)
@@ -111,13 +110,13 @@ class UsuarioController {
     /**
      * Eliminar un usuario por su username (Solo el admin puede eliminar usuarios).
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{username}")
     fun deleteUsuario(
         authentication: Authentication,
-        @PathVariable id: Long
+        @PathVariable username: String
     ): ResponseEntity<Any> {
-        if (authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
-            usuarioService.deleteUsuario(id)
+        if (authentication.name == username || authentication.authorities.any { it.authority == "ROLE_ADMIN" }) {
+            usuarioService.deleteUsuario(username)
             return ResponseEntity(mapOf("message" to "Usuario eliminado exitosamente"), HttpStatus.OK)
         }
         return ResponseEntity(mapOf("message" to "Acceso denegado"), HttpStatus.FORBIDDEN)

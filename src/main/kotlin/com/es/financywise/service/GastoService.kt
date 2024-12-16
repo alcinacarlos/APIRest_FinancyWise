@@ -19,9 +19,9 @@ class GastoService() {
     /**
      * Método para registrar un nuevo gasto asociado a un usuario
      */
-    fun registerGasto(idUsuario: Long, gasto: Gasto): Gasto {
-        val usuario: Usuario = usuarioRepository.findById(idUsuario)
-            .orElseThrow { NotFoundException("Usuario con ID $idUsuario no encontrado") }
+    fun registerGasto(username: String, gasto: Gasto): Gasto {
+        val usuario: Usuario = usuarioRepository.findByUsername(username)
+            .orElseThrow { NotFoundException("Usuario con ID $username no encontrado") }
 
         gasto.usuario = usuario
 
@@ -38,9 +38,9 @@ class GastoService() {
     /**
      * Método para obtener los gastos de un usuario específico
      */
-    fun getGastosByUsuario(idUsuario: Long): List<Gasto> {
-        val usuario: Usuario = usuarioRepository.findById(idUsuario)
-            .orElseThrow { NotFoundException("Usuario con ID $idUsuario no encontrado") }
+    fun getGastosByUsuario(username: String): List<Gasto> {
+        val usuario: Usuario = usuarioRepository.findByUsername(username)
+            .orElseThrow { NotFoundException("Usuario con ID $username no encontrado") }
 
         return gastoRepository.findByUsuario(usuario)
     }
